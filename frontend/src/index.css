@@ -1,0 +1,134 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system based on the uploaded image colors */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Inter:wght@100..900&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 155 100% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 155 100% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 155 100% 15%;
+
+    --primary: 155 100% 15%;
+    --primary-foreground: 43 58% 78%;
+
+    --secondary: 43 58% 78%;
+    --secondary-foreground: 155 100% 15%;
+
+    --muted: 43 20% 95%;
+    --muted-foreground: 155 30% 35%;
+
+    --accent: 43 58% 78%;
+    --accent-foreground: 155 100% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 43 20% 88%;
+    --input: 43 20% 88%;
+    --ring: 155 100% 15%;
+
+    --radius: 0.75rem;
+
+    --primary-teal: 155 100% 15%;
+    --primary-gold: 43 58% 78%;
+    --accent-teal: 155 80% 20%;
+    --accent-gold: 43 65% 85%;
+    --text-primary: 155 100% 15%;
+    --text-secondary: 155 50% 25%;
+  }
+
+  .dark {
+    --background: 155 100% 8%;
+    --foreground: 43 58% 78%;
+
+    --card: 155 100% 10%;
+    --card-foreground: 43 58% 78%;
+
+    --popover: 155 100% 10%;
+    --popover-foreground: 43 58% 78%;
+
+    --primary: 43 58% 78%;
+    --primary-foreground: 155 100% 15%;
+
+    --secondary: 155 50% 20%;
+    --secondary-foreground: 43 58% 78%;
+
+    --muted: 155 50% 20%;
+    --muted-foreground: 43 30% 65%;
+
+    --accent: 155 50% 20%;
+    --accent-foreground: 43 58% 78%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 155 50% 20%;
+    --input: 155 50% 20%;
+    --ring: 43 58% 78%;
+
+    --primary-teal: 155 100% 15%;
+    --primary-gold: 43 58% 78%;
+    --accent-teal: 155 80% 25%;
+    --accent-gold: 43 50% 70%;
+    --text-primary: 43 58% 78%;
+    --text-secondary: 43 40% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* RTL Support */
+  [dir="rtl"] {
+    font-family: 'Cairo', 'Tajawal', system-ui, sans-serif;
+  }
+
+  [dir="ltr"] {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  /* Default to Arabic */
+  html:not([dir]) {
+    direction: rtl;
+    font-family: 'Cairo', 'Tajawal', system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--primary-teal)) 0%, hsl(var(--accent-teal)) 100%);
+  }
+  
+  .bg-gradient-secondary {
+    background: linear-gradient(135deg, hsl(var(--primary-gold)) 0%, hsl(var(--accent-gold)) 100%);
+  }
+  
+  .text-gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--primary-teal)) 0%, hsl(var(--accent-teal)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .text-gradient-secondary {
+    background: linear-gradient(135deg, hsl(var(--primary-gold)) 0%, hsl(var(--accent-gold)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
