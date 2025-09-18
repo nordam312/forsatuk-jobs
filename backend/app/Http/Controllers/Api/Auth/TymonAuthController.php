@@ -19,7 +19,7 @@ class TymonAuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'refresh']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'refresh', 'check', 'me']]);
     }
 
     /**
@@ -81,8 +81,8 @@ class TymonAuthController extends Controller
 
         if ($platform === 'web') {
             // للويب: إرجاع token في HttpOnly Cookie
-            $ttl = config('jwt.ttl', 60); // بالدقائق
-            $refreshTtl = config('jwt.refresh_ttl', 20160); // بالدقائق
+            $ttl = (int) config('jwt.ttl', 60); // بالدقائق
+            $refreshTtl = (int) config('jwt.refresh_ttl', 20160); // بالدقائق
 
             return $this->respondWithTokenAndCookies($token, $user);
         }
@@ -148,32 +148,66 @@ class TymonAuthController extends Controller
     /**
      * الحصول على المستخدم المسجل حالياً
      */
-    public function me(): JsonResponse
+    public function me(Request $request): JsonResponse
     {
-        $user = auth()->user();
-        $user->load('roles', 'permissions');
+        try {
+            // Try to get token from cookie first
+            $token = $request->cookie('jwt_token');
 
-        return response()->json([
-            'success' => true,
-            'user' => [
-                'id' => $user->id,
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'email' => $user->email,
-                'user_type' => $user->user_type,
-                'avatar' => $user->avatar_url,
-                'phone' => $user->phone,
-                'bio' => $user->bio,
-                'skills' => $user->skills,
-                'hourly_rate' => $user->hourly_rate,
-                'rating' => $user->rating,
-                'is_verified' => $user->email_verified_at !== null,
-                'roles' => $user->getRoleNames(),
-                'permissions' => $user->getAllPermissions()->pluck('name'),
-                'created_at' => $user->created_at,
-                'last_login_at' => $user->last_login_at
-            ]
-        ]);
+            if ($token) {
+                JWTAuth::setToken($token);
+                $user = JWTAuth::authenticate();
+            } else {
+                // Fallback to standard auth
+                $user = auth()->user();
+            }
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthenticated'
+                ], 401);
+            }
+
+            $user->load('roles', 'permissions');
+
+            return response()->json([
+                'success' => true,
+                'user' => [
+                    'id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'user_type' => $user->user_type,
+                    'avatar_url' => $user->avatar_url,
+                    'phone' => $user->phone,
+                    'bio' => $user->bio,
+                    'skills' => $user->skills,
+                    'hourly_rate' => $user->hourly_rate,
+                    'rating' => $user->rating,
+                    'is_verified' => $user->email_verified_at !== null,
+                    'is_active' => $user->is_active,
+                    'is_featured' => $user->is_featured,
+                    'balance' => $user->balance,
+                    'currency' => $user->currency,
+                    'completed_projects_count' => $user->completed_projects_count,
+                    'total_reviews' => $user->total_reviews,
+                    'total_earned' => $user->total_earned,
+                    'total_spent' => $user->total_spent,
+                    'roles' => $user->getRoleNames(),
+                    'permissions' => $user->getAllPermissions()->pluck('name'),
+                    'created_at' => $user->created_at,
+                    'updated_at' => $user->updated_at,
+                    'last_login_at' => $user->last_login_at
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get user information: ' . $e->getMessage()
+            ], 401);
+        }
     }
 
     /**
@@ -232,10 +266,28 @@ class TymonAuthController extends Controller
     /**
      * التحقق من صحة Token
      */
-    public function check(): JsonResponse
+    public function check(Request $request): JsonResponse
     {
         try {
-            $user = JWTAuth::parseToken()->authenticate();
+            // First try to get token from cookie
+            $token = $request->cookie('jwt_token');
+
+            // If no cookie, try Authorization header
+            if (!$token) {
+                $user = JWTAuth::parseToken()->authenticate();
+            } else {
+                // Set token from cookie and authenticate
+                JWTAuth::setToken($token);
+                $user = JWTAuth::authenticate();
+            }
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'authenticated' => false,
+                    'message' => 'User not found'
+                ], 401);
+            }
 
             return response()->json([
                 'success' => true,
@@ -269,7 +321,7 @@ class TymonAuthController extends Controller
             'success' => true,
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => JWTAuth::factory()->getTTL() * 60,
+            'expires_in' => (int) JWTAuth::factory()->getTTL() * 60,
             'user' => [
                 'id' => $user->id,
                 'first_name' => $user->first_name,
@@ -292,7 +344,7 @@ class TymonAuthController extends Controller
             $user = auth()->user();
         }
 
-        $ttl = JWTAuth::factory()->getTTL(); // بالدقائق
+        $ttl = (int) JWTAuth::factory()->getTTL(); // بالدقائق - تحويل لرقم
 
         return response()->json([
             'success' => true,
@@ -313,11 +365,11 @@ class TymonAuthController extends Controller
             $token,
             $ttl, // مدة الصلاحية بالدقائق
             '/', // path
-            null, // domain
-            true, // secure (HTTPS only in production)
+            null, // domain - null للسماح بالعمل على أي subdomain
+            false, // secure (false for local development)
             true, // httpOnly
             false, // raw
-            'Strict' // sameSite
+            'Lax' // sameSite - Lax for cross-origin
         );
     }
 }

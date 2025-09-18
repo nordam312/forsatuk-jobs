@@ -20,9 +20,10 @@ return [
     'allowed_origins' => [
         'http://localhost:5173',  // Vite React Dev
         'http://localhost:3000',  // React Alternative
-        'http://localhost:8080',  // Vue Dev
+        'http://localhost:8080',  // Frontend Dev
         'http://127.0.0.1:5173',
         'http://127.0.0.1:3000',
+        'http://127.0.0.1:8080',  // Frontend Dev Alternative
         // إضافة نطاقات الإنتاج هنا
         // 'https://forsatuk.com',
         // 'https://www.forsatuk.com',

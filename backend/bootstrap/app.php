@@ -34,6 +34,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth/*'
         ]);
 
+        // Exclude JWT cookies from encryption
+        $middleware->encryptCookies(except: [
+            'jwt_token',
+            'jwt_refresh_token'
+        ]);
+
         // Trust proxies for production
         $middleware->trustProxies(at: '*');
     })

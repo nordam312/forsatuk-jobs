@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/contexts/LanguageContext";
-import LanguageToggle from "@/components/LanguageToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +17,7 @@ import {
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, loading } = useAuth();
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
   const navigate = useNavigate();
@@ -30,13 +29,12 @@ const Header = () => {
 
   const getDashboardPath = () => {
     if (!user) return '/dashboard';
-    switch (user.role) {
+    switch (user.user_type) {
       case 'admin':
         return '/admin/dashboard';
       case 'freelancer':
         return '/freelancer/dashboard';
-      case 'company':
-      case 'client':
+      case 'employer':
         return '/company/dashboard';
       default:
         return '/dashboard';
@@ -55,7 +53,7 @@ const Header = () => {
               </div>
             </div>
             <div className="hidden md:block">
-              <h1 className="text-xl font-bold text-primary-teal">Forsatuk</h1>
+              <h1 className="text-xl font-bold text-primary-teal">{isRTL ? 'فرصتك' : 'Forsatuk'}</h1>
               <p className="text-xs text-muted-foreground">{t('hero.subtitle')}</p>
             </div>
           </Link>
@@ -93,8 +91,10 @@ const Header = () => {
 
           {/* Desktop Actions */}
           <div className={`hidden md:flex items-center ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'}`}>
-            <LanguageToggle />
-            {isAuthenticated ? (
+            {loading ? (
+              // Show loading state or nothing while checking auth
+              <div className="w-20 h-8"></div>
+            ) : isAuthenticated ? (
               <>
                 <Link to={getDashboardPath()}>
                   <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary-teal">
@@ -113,21 +113,27 @@ const Header = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
                     <div className="px-2 py-1.5">
-                      <p className="text-sm font-medium">{user?.firstName} {user?.lastName}</p>
+                      <p className="text-sm font-medium">{user?.first_name} {user?.last_name}</p>
                       <p className="text-xs text-muted-foreground">{user?.email}</p>
-                      <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
+                      <p className="text-xs text-muted-foreground capitalize">{user?.user_type}</p>
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
+                      <Link to={`/profile/${user?.id}`}>
+                        <User className="w-4 h-4 ml-2" />
+                        الملف الشخصي
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link to={getDashboardPath()}>
                         <BarChart3 className="w-4 h-4 ml-2" />
-                        لوحة التحكم
+                        {t('common.dashboard')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="w-4 h-4 ml-2" />
-                      تسجيل الخروج
+                      {t('common.logout')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -190,7 +196,7 @@ const Header = () => {
                 <Link to="/pricing" className="text-muted-foreground py-2" onClick={() => setIsMenuOpen(false)}>
                   الأسعار
                 </Link>
-                {isAuthenticated && (
+                {!loading && isAuthenticated && (
                   <Link to={getDashboardPath()} className="text-muted-foreground py-2" onClick={() => setIsMenuOpen(false)}>
                     لوحة التحكم
                   </Link>
@@ -199,13 +205,16 @@ const Header = () => {
               
               {/* Mobile Actions */}
               <div className="flex flex-col space-y-2 pt-4 border-t">
-                {isAuthenticated ? (
+                {loading ? (
+                  // Show loading state or nothing while checking auth
+                  <div className="h-20"></div>
+                ) : isAuthenticated ? (
                   <>
                     <div className="text-sm text-muted-foreground mb-2">
-                      {user?.firstName} {user?.lastName} ({user?.role})
+                      {user?.first_name} {user?.last_name} ({user?.user_type})
                     </div>
                     <Button variant="outline" className="w-full" onClick={handleLogout}>
-                      تسجيل الخروج
+                      {t('common.logout')}
                     </Button>
                   </>
                 ) : (

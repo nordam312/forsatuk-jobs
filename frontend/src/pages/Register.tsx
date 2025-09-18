@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -10,10 +10,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Briefcase } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -24,10 +27,82 @@ const Register = () => {
     phone: ""
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+  const { register } = useAuth();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // هنا سيتم إضافة منطق التسجيل لاحقاً
-    console.log("Register attempt:", formData);
+
+    // التحقق من البيانات
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.userType) {
+      toast.error("يرجى ملء جميع الحقول المطلوبة");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("كلمتا المرور غير متطابقتين");
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      toast.error("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const registerData = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        password_confirmation: formData.confirmPassword,
+        user_type: formData.userType as 'freelancer' | 'employer',
+        phone: formData.phone || undefined,
+        platform: 'web'
+      };
+      await register(registerData);
+
+      toast.success("تم إنشاء الحساب بنجاح!");
+
+      // التوجيه حسب نوع المستخدم
+      if (formData.userType === 'freelancer') {
+        navigate('/freelancer/dashboard');
+      } else if (formData.userType === 'employer') {
+        navigate('/company/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('Registration error:', error.response?.data);
+
+      // معالجة أخطاء الـ validation من Backend
+      if (error.response?.data?.errors) {
+        const errors = error.response.data.errors;
+        const firstErrorKey = Object.keys(errors)[0]; // جلب مفتاح المشكلة
+        const firstError = errors[firstErrorKey][0]; // جلب نتيجة المشكلة عن طريق المفتاح
+        console.log(errors)
+        console.log(firstErrorKey)
+        console.log(firstError)
+        // ترجمة رسائل الخطأ الشائعة
+        if (firstError.includes('already been taken')) {
+          toast.error('البريد الإلكتروني مستخدم بالفعل');
+        } else if (firstError.includes('required')) {
+          toast.error('يرجى ملء جميع الحقول المطلوبة');
+        } else if (firstError.includes('confirmed')) {
+          toast.error('كلمتا المرور غير متطابقتين');
+        } else if (firstError.includes('at least 8')) {
+          toast.error('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
+        } else {
+          toast.error(firstError);
+        }
+      }else {
+        toast.error(error.message || "حدث خطأ أثناء إنشاء الحساب");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -135,8 +210,7 @@ const Register = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="freelancer">مستقل</SelectItem>
-                        <SelectItem value="client">عميل</SelectItem>
-                        <SelectItem value="company">شركة</SelectItem>
+                        <SelectItem value="employer">صاحب عمل</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -205,9 +279,13 @@ const Register = () => {
                     </p>
                   </div>
 
-                  <Button type="submit" className="w-full bg-gradient-primary text-white hover:opacity-90 h-12">
-                    إنشاء الحساب
-                    <ArrowRight className="w-4 h-4 mr-2" />
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-primary text-white hover:opacity-90 h-12"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "جاري إنشاء الحساب..." : "إنشاء الحساب"}
+                    {!isLoading && <ArrowRight className="w-4 h-4 mr-2" />}
                   </Button>
                 </form>
 

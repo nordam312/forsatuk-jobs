@@ -72,7 +72,7 @@ class JWTAuthenticate
             }
 
             // Set the authenticated user for the request
-            auth()->login($user);
+            auth()->setUser($user);
             $request->merge(['user' => $user]);
             $request->setUserResolver(function () use ($user) {
                 return $user;
@@ -94,17 +94,17 @@ class JWTAuthenticate
                 // For web, update cookie
                 if ($request->hasCookie('jwt_token')) {
                     $ttl = config('jwt.ttl', 60);
-                    $response->cookie(
+                    $response->withCookie(cookie(
                         'jwt_token',
                         $newToken,
                         $ttl,
                         '/',
                         null,
-                        true,
-                        true,
-                        false,
-                        'Strict'
-                    );
+                        false, // secure - false for local development
+                        true,  // httpOnly
+                        false, // raw
+                        'Lax'  // sameSite - Lax for cross-origin
+                    ));
                 }
 
                 return $response;

@@ -27,6 +27,9 @@ Route::prefix('auth')->group(function () {
 
     // التحقق من حالة المصادقة
     Route::get('/check', [TymonAuthController::class, 'check']);
+
+    // معلومات المستخدم الحالي (يتعامل مع الكوكيز داخلياً)
+    Route::get('/me', [TymonAuthController::class, 'me']);
 });
 
 // معلومات عامة عن API
@@ -54,7 +57,6 @@ Route::middleware(['jwt.auth'])->group(function () {
     // Auth endpoints
     Route::prefix('auth')->group(function () {
         Route::post('/logout', [TymonAuthController::class, 'logout']);
-        Route::get('/me', [TymonAuthController::class, 'me']);
     });
 
     // User Profile

@@ -1,95 +1,115 @@
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import authService from '../services/authService';
+import { User, LoginCredentials, RegisterData } from '../types/auth.types';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, AuthContextType, UserRole } from '@/types/user';
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  isAuthenticated: boolean;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
+  logout: () => Promise<void>;
+  updateProfile: (data: Partial<User>) => Promise<void>;
+  refreshUser: () => Promise<void>;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
 
-// Mock user data for demonstration
-const mockUsers: User[] = [
-  {
-    id: '1',
-    email: 'admin@forsatk.com',
-    firstName: 'مدير',
-    lastName: 'النظام',
-    role: 'admin',
-    isActive: true,
-    createdAt: '2024-01-01'
-  },
-  {
-    id: '2',
-    email: 'freelancer@example.com',
-    firstName: 'أحمد',
-    lastName: 'محمد',
-    role: 'freelancer',
-    isActive: true,
-    createdAt: '2024-01-02'
-  },
-  {
-    id: '3',
-    email: 'company@example.com',
-    firstName: 'شركة',
-    lastName: 'التقنية',
-    role: 'company',
-    isActive: true,
-    createdAt: '2024-01-03'
-  }
-];
+interface AuthProviderProps {
+  children: ReactNode;
+}
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
+  // تحميل المستخدم عند بدء التطبيق
   useEffect(() => {
-    // Check for saved user in localStorage
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setIsLoading(false);
+    loadUser();
   }, []);
 
-  const login = async (email: string, password: string) => {
-    setIsLoading(true);
+  const loadUser = async () => {
     try {
-      // Mock authentication
-      const foundUser = mockUsers.find(u => u.email === email);
-      if (foundUser) {
-        setUser(foundUser);
-        localStorage.setItem('currentUser', JSON.stringify(foundUser));
-      } else {
-        throw new Error('Invalid credentials');
-      }
+      // محاولة الحصول على بيانات المستخدم من الـ backend
+      // الـ HttpOnly cookie سيُرسل تلقائياً مع الطلب
+      const userData = await authService.getProfile();
+      setUser(userData);
+      // يمكن حفظ البيانات في sessionStorage لاستخدامات أخرى
+      sessionStorage.setItem('user_data', JSON.stringify(userData));
     } catch (error) {
-      throw error;
+      // إذا فشل، المستخدم غير مسجل الدخول
+      console.log('User not authenticated');
+      sessionStorage.removeItem('user_data');
+      setUser(null);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const logout = () => {
+  const login = async (credentials: LoginCredentials) => {
+    const response = await authService.login(credentials);
+    if (response.success) {
+      // الـ Backend يرسل user مباشرة، ليس داخل data
+      const userData = response.user || response.data?.user;
+      setUser(userData);
+      // نحفظ البيانات في sessionStorage
+      if (userData) {
+        sessionStorage.setItem('user_data', JSON.stringify(userData));
+      }
+    } else {
+      throw new Error(response.message);
+    }
+  };
+
+  const register = async (data: RegisterData) => {
+    const response = await authService.register(data);
+    if (response.success) {
+      // الـ Backend يرسل user مباشرة، ليس داخل data
+      const userData = response.user || response.data?.user;
+      setUser(userData);
+      // نحفظ البيانات في sessionStorage
+      if (userData) {
+        sessionStorage.setItem('user_data', JSON.stringify(userData));
+      }
+    } else {
+      throw new Error(response.message);
+    }
+  };
+
+  const logout = async () => {
+    await authService.logout();
     setUser(null);
-    localStorage.removeItem('currentUser');
+    sessionStorage.removeItem('user_data');
+  };
+
+  const updateProfile = async (data: Partial<User>) => {
+    const updatedUser = await authService.updateProfile(data);
+    setUser(updatedUser);
+  };
+
+  const refreshUser = async () => {
+    const userData = await authService.getProfile();
+    setUser(userData);
   };
 
   const value: AuthContextType = {
     user,
+    loading,
     isAuthenticated: !!user,
     login,
+    register,
     logout,
-    isLoading
+    updateProfile,
+    refreshUser,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

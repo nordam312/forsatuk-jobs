@@ -26,12 +26,12 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      await login({ email, password });
       toast.success("تم تسجيل الدخول بنجاح!");
-      
+
       // Navigate to appropriate dashboard based on user role
       // This will be handled by the auth context
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       toast.error("خطأ في تسجيل الدخول. تأكد من البريد الإلكتروني وكلمة المرور.");
     } finally {
