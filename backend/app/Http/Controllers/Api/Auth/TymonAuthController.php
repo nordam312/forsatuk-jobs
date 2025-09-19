@@ -101,7 +101,7 @@ class TymonAuthController extends Controller
             'last_name' => 'required|string|max:50',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'user_type' => 'required|in:freelancer,employer',
+            'user_type' => 'required|in:freelancer,employer,client',
             'phone' => 'nullable|string|max:20',
             'platform' => 'in:web,mobile,desktop'
         ]);
@@ -131,6 +131,8 @@ class TymonAuthController extends Controller
             $user->assignRole('freelancer');
         } elseif ($request->user_type === 'employer') {
             $user->assignRole('employer');
+        } elseif ($request->user_type === 'client') {
+            $user->assignRole('client');
         }
 
         // إنشاء token

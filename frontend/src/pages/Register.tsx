@@ -58,7 +58,7 @@ const Register = () => {
         email: formData.email,
         password: formData.password,
         password_confirmation: formData.confirmPassword,
-        user_type: formData.userType as 'freelancer' | 'employer',
+        user_type: formData.userType as 'freelancer' | 'employer' | 'client',
         phone: formData.phone || undefined,
         platform: 'web'
       };
@@ -71,6 +71,8 @@ const Register = () => {
         navigate('/freelancer/dashboard');
       } else if (formData.userType === 'employer') {
         navigate('/company/dashboard');
+      } else if (formData.userType === 'client') {
+        navigate('/dashboard'); // العملاء يذهبون للوحة تحكم عامة
       } else {
         navigate('/dashboard');
       }
@@ -209,8 +211,9 @@ const Register = () => {
                         <SelectValue placeholder="اختر نوع الحساب" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="freelancer">مستقل</SelectItem>
-                        <SelectItem value="employer">صاحب عمل</SelectItem>
+                        <SelectItem value="freelancer">مستقل (أقدم خدماتي)</SelectItem>
+                        <SelectItem value="employer">شركة/مؤسسة (أوظف مستقلين)</SelectItem>
+                        <SelectItem value="client">عميل (أبحث عن خدمات)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

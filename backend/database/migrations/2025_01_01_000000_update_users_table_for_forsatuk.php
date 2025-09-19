@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('last_name', 50)->after('first_name');
 
             // نوع المستخدم
-            $table->enum('user_type', ['freelancer', 'employer', 'admin'])->default('freelancer')->after('password');
+            $table->enum('user_type', ['freelancer', 'employer', 'client', 'admin'])->default('client')->after('password');
 
             // معلومات الاتصال
             $table->string('phone', 20)->nullable()->after('user_type');

@@ -4,7 +4,7 @@ export interface User {
   last_name: string;
   name: string;
   email: string;
-  user_type: 'freelancer' | 'employer' | 'admin';
+  user_type: 'freelancer' | 'employer' | 'client' | 'admin';
   phone?: string;
   country?: string;
   city?: string;
@@ -42,7 +42,7 @@ export interface RegisterData {
   email: string;
   password: string;
   password_confirmation: string;
-  user_type: 'freelancer' | 'employer';
+  user_type: 'freelancer' | 'employer' | 'client';
   phone?: string;
   country?: string;
   city?: string;
