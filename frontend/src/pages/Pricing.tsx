@@ -4,8 +4,8 @@ import { Check, Crown, Zap, Users, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import { Header } from "@/components/layout";
+import { Footer } from "@/components/layout";
 
 const Pricing = () => {
   const [isAnnual, setIsAnnual] = useState(false);

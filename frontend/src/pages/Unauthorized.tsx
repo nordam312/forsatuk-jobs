@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ShieldX, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Header from "@/components/Header";
+import { Header } from "@/components/layout";
 
 const Unauthorized = () => {
   return (

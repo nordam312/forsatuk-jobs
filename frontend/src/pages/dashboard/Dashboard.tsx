@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import Header from "@/components/Header";
+import { Header } from "@/components/layout";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsCards from "@/components/dashboard/StatsCards";
 import TopFreelancers from "@/components/dashboard/TopFreelancers";

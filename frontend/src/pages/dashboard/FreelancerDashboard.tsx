@@ -13,7 +13,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import Header from "@/components/Header";
+import { Header } from "@/components/layout";
 
 const FreelancerDashboard = () => {
   // Mock data for freelancer

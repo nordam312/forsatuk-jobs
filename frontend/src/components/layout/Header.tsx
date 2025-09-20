@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import CategoriesDropdown from "./CategoriesDropdown";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -75,6 +76,10 @@ const Header = () => {
             <Link to="/" className="text-primary-teal hover:text-accent-teal transition-colors">
               {t('common.home')}
             </Link>
+
+            {/* Categories Dropdown */}
+            <CategoriesDropdown isRTL={isRTL} />
+
             <Link to="/projects" className="text-muted-foreground hover:text-primary-teal transition-colors">
               {t('nav.jobs')}
             </Link>
@@ -184,6 +189,7 @@ const Header = () => {
                 <Link to="/" className="text-primary-teal py-2" onClick={() => setIsMenuOpen(false)}>
                   الرئيسية
                 </Link>
+                <CategoriesDropdown isRTL={isRTL} isMobile={true} onItemClick={() => setIsMenuOpen(false)} />
                 <Link to="/projects" className="text-muted-foreground py-2" onClick={() => setIsMenuOpen(false)}>
                   المشاريع
                 </Link>

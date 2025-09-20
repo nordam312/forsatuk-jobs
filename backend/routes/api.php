@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\TymonAuthController;
-
+use App\Http\Controllers\Api\CategoryController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -203,19 +203,10 @@ Route::middleware(['jwt.auth'])->group(function () {
 // Public Endpoints (معلومات عامة)
 // ============================================
 
-// قائمة الفئات
-Route::get('/categories', function () {
-    return response()->json([
-        'success' => true,
-        'data' => [
-            ['id' => 1, 'name' => 'Programming', 'name_ar' => 'البرمجة'],
-            ['id' => 2, 'name' => 'Design', 'name_ar' => 'التصميم'],
-            ['id' => 3, 'name' => 'Writing', 'name_ar' => 'الكتابة'],
-            ['id' => 4, 'name' => 'Marketing', 'name_ar' => 'التسويق'],
-            ['id' => 5, 'name' => 'Translation', 'name_ar' => 'الترجمة']
-        ]
-    ]);
-});
+// Categories Routes
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
+Route::get('/categories-options', [CategoryController::class, 'options']);
 
 // قائمة المهارات
 Route::get('/skills', function () {

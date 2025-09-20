@@ -1,11 +1,12 @@
 
-import Header from "@/components/Header";
-import Hero from "@/components/Hero";
-import Categories from "@/components/Categories";
-import FeaturedProjects from "@/components/FeaturedProjects";
-import TopFreelancers from "@/components/TopFreelancers";
-import Features from "@/components/Features";
-import Footer from "@/components/Footer";
+import { Header, Footer } from "@/components/layout";
+import {
+  Hero,
+  Categories,
+  FeaturedProjects,
+  TopFreelancers,
+  Features
+} from "@/components/home";
 
 const Index = () => {
   return (
