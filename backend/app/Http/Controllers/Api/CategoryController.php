@@ -42,17 +42,31 @@ class CategoryController extends Controller
     /**
      * Display the specified category with all its subcategories.
      */
-    public function show($id)
+    public function show($idOrSlug)
     {
-        $category = Category::with(['subcategories' => function ($query) {
-            $query->active()->ordered();
-        }])
-        ->withCount(['subcategories'])
-        ->findOrFail($id);
+        // Check if it's a slug (contains letters) or ID (numeric)
+        $category = is_numeric($idOrSlug)
+            ? Category::with(['subcategories' => function ($query) {
+                $query->active()->ordered();
+            }])
+            ->withCount(['subcategories'])
+            ->findOrFail($idOrSlug)
+            : Category::with(['subcategories' => function ($query) {
+                $query->active()->ordered();
+            }])
+            ->withCount(['subcategories'])
+            ->where('slug', $idOrSlug)
+            ->firstOrFail();
 
         // Add dummy counts for now
-        $category->services_count = 0;
-        $category->projects_count = 0;
+        $category->services_count = rand(50, 200);
+        $category->projects_count = rand(20, 100);
+
+        // Add dummy counts for subcategories
+        $category->subcategories->each(function ($subcategory) {
+            $subcategory->services_count = rand(5, 50);
+            $subcategory->projects_count = rand(2, 20);
+        });
 
         return response()->json([
             'success' => true,

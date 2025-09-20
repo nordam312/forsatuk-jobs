@@ -14,6 +14,7 @@ import { Login, Register } from "./pages/auth";
 import Pricing from "./pages/Pricing";
 import { Dashboard, FreelancerDashboard, CompanyDashboard } from "./pages/dashboard";
 import Profile from "./pages/Profile";
+import Category from "./pages/Category";
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
 
@@ -40,6 +41,7 @@ const AppContent = () => {
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/category/:slug" element={<Category />} />
             <Route path="/profile/:userId" element={<Profile />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
 

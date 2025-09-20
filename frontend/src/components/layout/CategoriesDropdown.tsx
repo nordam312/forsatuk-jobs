@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDown, Grid, Code, Palette, Edit, TrendingUp, Video, ChevronRight } from 'lucide-react';
 import {
   DropdownMenu,
@@ -37,6 +37,7 @@ interface CategoriesDropdownProps {
 }
 
 const CategoriesDropdown = ({ isRTL = true, isMobile = false, onItemClick }: CategoriesDropdownProps) => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -134,7 +135,7 @@ const CategoriesDropdown = ({ isRTL = true, isMobile = false, onItemClick }: Cat
                       {category.subcategories.slice(0, 4).map(sub => (
                         <Link
                           key={sub.id}
-                          to={`/services/subcategory/${sub.slug}`}
+                          to={`/category/${category.slug}?subcategory=${sub.id}`}
                           className="block py-1 text-xs text-gray-500 hover:text-primary-teal"
                           onClick={handleItemClick}
                         >
@@ -227,7 +228,7 @@ const CategoriesDropdown = ({ isRTL = true, isMobile = false, onItemClick }: Cat
                         ?.subcategories.map(sub => (
                           <Link
                             key={sub.id}
-                            to={`/services/subcategory/${sub.slug}`}
+                            to={`/category/${sub.slug}?subcategory=${sub.id}`}
                             className="p-3 bg-white rounded-lg hover:bg-white hover:shadow-md transition-all group"
                             onClick={handleItemClick}
                           >
