@@ -13,6 +13,22 @@ export default defineConfig(({ mode }) => ({
         target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            // Forward cookies from the browser
+            const cookieHeader = req.headers.cookie;
+            if (cookieHeader) {
+              proxyReq.setHeader('Cookie', cookieHeader);
+            }
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            // Forward Set-Cookie headers from the backend
+            const setCookieHeaders = proxyRes.headers['set-cookie'];
+            if (setCookieHeaders) {
+              res.setHeader('Set-Cookie', setCookieHeaders);
+            }
+          });
+        }
       }
     }
   },

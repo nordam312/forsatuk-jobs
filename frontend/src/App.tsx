@@ -13,6 +13,7 @@ import Companies from "./pages/Companies";
 import { Login, Register } from "./pages/auth";
 import Pricing from "./pages/Pricing";
 import { Dashboard, FreelancerDashboard, CompanyDashboard } from "./pages/dashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import Profile from "./pages/Profile";
 import Category from "./pages/Category";
 import Unauthorized from "./pages/Unauthorized";
@@ -47,10 +48,10 @@ const AppContent = () => {
 
             {/* Protected Admin Dashboard */}
             <Route
-              path="/admin/dashboard"
+              path="/admin"
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
-                  <Dashboard />
+                  <AdminDashboard />
                 </ProtectedRoute>
               }
             />

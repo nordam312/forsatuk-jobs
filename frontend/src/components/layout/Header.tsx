@@ -32,7 +32,7 @@ const Header = () => {
     if (!user) return '/dashboard';
     switch (user.user_type) {
       case 'admin':
-        return '/admin/dashboard';
+        return '/admin';
       case 'freelancer':
         return '/freelancer/dashboard';
       case 'employer':

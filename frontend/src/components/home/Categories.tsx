@@ -45,7 +45,7 @@ const Categories = () => {
   };
 
   const getCategoryIcon = (slug?: string) => {
-    const iconMap: { [key: string]: any } = {
+    const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
       'programming-tech': Code,
       'design-creative': Palette,
       'writing-translation': PenTool,
@@ -143,7 +143,7 @@ const Categories = () => {
     }
   ];
 
-  const displayCategories = categories.length > 0 ? categories : staticCategories;
+  const displayCategories = categories.length < 0 ? categories : staticCategories;
 
   return (
     <section className="py-20 bg-gradient-to-br from-gray-50 to-white" dir="rtl">
@@ -158,7 +158,7 @@ const Categories = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {displayCategories.map((category, index) => {
+          {displayCategories.map((category: Category | typeof staticCategories[0], index) => {
             const isDynamic = 'id' in category;
             return (
               <div
@@ -190,7 +190,7 @@ const Categories = () => {
           })}
         </div>
 
-        <div className="text-center mt-12">
+        {/* <div className="text-center mt-12">
           <Button
             variant="outline"
             size="lg"
@@ -199,7 +199,7 @@ const Categories = () => {
           >
             عرض جميع التخصصات
           </Button>
-        </div>
+        </div> */}
       </div>
     </section>
   );
